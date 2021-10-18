@@ -1,1 +1,35 @@
 # LT2326-MLA
+
+# Introduction
+Optical character recognition is an old "AI" and image-processing task.  What it involves is taking a photograph or scan of a piece of text (printed or handwritten) and turning the characters (as images) into character codes on the computer that therefore allow the text to be edited, indexed, etc.  A key part of that process is identifying where the characters actually are, especially if the characters are mixed among other non-writing, such as images of objects or people.
+
+In this assignment, you will take images from a Chinese image database with annotations that indicate where the Chinese characters are, and you will train a model that takes test images and superimposes upon them a visualization (of your choosing, e.g., a "heat map") of the likelihood that a pixel is close to or part of a valid Chinese character.  The image database contains annotations of "bounding boxes", coordinates of the corners of a box that contains a single Chinese character.  In a sense, this assignment asks you to detect the bounding boxes in test images without the annotation, but a softer version of this: simply to provide the probability, for each pixel, whether that pixel was part of a bounding box containing a Chinese character.  Then, you are to (1) superimpose upon the image a pixel-based map of likelihoods of where the bounding boxes ought to be and (2) apply an evaluation statistic.
+
+This assignment grants you a lot of freedom in how you organize your code and set up the task overall.  Because of the degree of freedom it involves, it will mostly be graded on our evaluation of the effort put into the solution.  An actual high success at the task is not a requirement to get a high grade.  However, you will have to report in detail, in your own format, what you did, why you did it, how to run it -- it must run on mltgpu, be implemented in Python using PyTorch, and make use of the GPUs -- and how to apply it easily to our own test images.
+
+You will have almost a month to do this assignment, even though it is worth only 30% of your grade.  Another assignment with 30% will be given out for the last/remaining two weeks of the study period.   These time periods are coextensive with that of the project, but we expect you to be able to schedule your time well enough to put in an effort at both. This assignment is officially due at 23:59 on 2021 October 18. There are 30 points on this assignment, and a maximum of 20 bonus points.
+
+# The data
+The source of the task is here: https://ctwdataset.github.io/ They have example images and an example of a baseline task that is much more advanced than what we are doing, but it will give you an idea of the data format, particularly the metadata.  Pay attention especially to the "Annotation format" section of this page: https://ctwdataset.github.io/tutorial/1-basics.html
+
+The metadata and a small sample of the whole image dataset is available at /scratch/lt2326-h21/a1 on mltgpu. The metadata is in json format.  info.json contains information about every image file.  We will unzip only a minority of the original training image files.  train.jsonl is a list of json entities, one per line (that have to be parsed with the json package each separately) that correspond to the files in info.json.  This contains the bounding box information, as well as other information for the original challenge on the web.  See the "Annotation format" section mentioned on the dataset web page linked above.
+
+# Part 1: data preparation (7 points)
+The image files are in /scratch/lt2326-h21/a1/images on mltgpu. They are in jpg format.  The code that you write for this part of the project should:
+
+Use the info.json file to figure out what files are in the training set.  You will just use the official training data for everything.  Remember that you will only see a small minority of training examples in the images directory, for space reasons.
+Divide up the official training data files into your own training, validation, and test datasets depending on your own preferences. You can choose to use fewer files than the maximum available if you run into problems with memory and so on (but first make sure your implementation is reasonably efficient).
+Find the corresponding bounding box information in train.jsonl for each image. 
+You can represent the data in any way you like, but remember that it will become a numpy array for processing and a torch tensor for training.  Remember also that the classes are defined by pixel: for each pixel, you will eventually have a set of features (e.g. colour values), and a binary class corresponding to whether the pixel was in a Chinese character bounding box or not (note that there are non-Chinese characters in the set -- see the annotation instructions).  You are allowed to reduce the dimensionality of the images for processing, but consider using a pooling and/or upsampling technique in Part 2 of this assignment to accomplish this goal. 
+
+Describe the choices you made and the challenges you found in your report.
+
+# Part 2: the models (10 points)
+In this part, you will implement two substantially different model architectures, that both take your representation of the images as training input and both take your representation of the bounding boxes as objective (HINT: the binary classification of pixels as belonging to a bounding box or not).  They will save the trained models to files so that they can be loaded and tested later. The output of the models will be a "soft binary" -- the probability of each pixel being inside a bounding box, from 0 to 1.  Consider examining some of the training data before designing your architectures.
+
+You have a large grant of freedom as to what these model architectures will look like (remember: grading is on a "reasonable effort" basis).  There's a high chance (HINT) that they will both use one or more convolutional layers, among other things.  Describe the models and the motivations for the architecture in your report.
+
+# Part 3: testing and evaluation (13 points)
+You can use your test data by feeding the test images forward through the models. The output of the models will be pixel maps of the probability of a particular pixel being inside a bounding box.  These will be compared outside the model to the test data's bounding boxes.  You can use a number of different evaluation strategies -- one of them being to choose a probability threshold to decide whether a pixel is inside the bounding box or not, and then take recall/precision/X11/accuracy. Another one is to report it in terms of error, such as mean squared error. Even given your architectural choices, you will likely have hyperparameters to tune.  Describe the progress of your training and testing, with graphs if necessary, in your report.
+
+It should also be possible to examine the effects of applying the model to individual images.  Make it possible to visually represent the pixel/bounding box probabilities superimposed on the original images.  Examine some of the images to conduct a qualitative error analysis of your trained models. Include this analysis in your report.
