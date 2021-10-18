@@ -1,6 +1,6 @@
 # LT2326-MLA
 
-# Introduction
+## Introduction
 Optical character recognition is an old "AI" and image-processing task.  What it involves is taking a photograph or scan of a piece of text (printed or handwritten) and turning the characters (as images) into character codes on the computer that therefore allow the text to be edited, indexed, etc.  A key part of that process is identifying where the characters actually are, especially if the characters are mixed among other non-writing, such as images of objects or people.
 
 In this assignment, you will take images from a Chinese image database with annotations that indicate where the Chinese characters are, and you will train a model that takes test images and superimposes upon them a visualization (of your choosing, e.g., a "heat map") of the likelihood that a pixel is close to or part of a valid Chinese character.  The image database contains annotations of "bounding boxes", coordinates of the corners of a box that contains a single Chinese character.  In a sense, this assignment asks you to detect the bounding boxes in test images without the annotation, but a softer version of this: simply to provide the probability, for each pixel, whether that pixel was part of a bounding box containing a Chinese character.  Then, you are to (1) superimpose upon the image a pixel-based map of likelihoods of where the bounding boxes ought to be and (2) apply an evaluation statistic.
